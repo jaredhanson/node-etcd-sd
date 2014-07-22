@@ -1,6 +1,7 @@
 var reg = require('./lib/').Registry;
 var logger = console;
 var registry = new reg();
+var count = 0;
 registry.connect();
 registry.announce('mr', 'ttl', 'is', function (err, res) {
   registry.resolve('mr', 'ttl', function (err, domains) {
@@ -10,4 +11,11 @@ registry.announce('mr', 'ttl', 'is', function (err, res) {
       logger.log(domains);
     }
   });
+});
+
+registry.on('ttl-refresh', function () {
+  count += 1;
+  if (count === 2) {
+    registry.close();
+  }
 });
