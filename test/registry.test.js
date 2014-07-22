@@ -13,12 +13,15 @@ describe('registry', function () {
 
   it('should be able get domains', function (done) {
     var registry = $require(registryPath, {etcd: etcd});
-    var reg = new registry();
+    var reg = new registry({timeout: 1});
     reg.connect();
     reg.announce('this', 'is', 'test2', function (err, res) {
       reg.domains(function (err2, res2) {
         // expect mr
-        done();
+        reg.on('ttl-refresh', function () {
+          reg.close();
+          done();
+        })
       })
     });
   });
