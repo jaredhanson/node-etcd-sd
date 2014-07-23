@@ -15,7 +15,7 @@ registry.announce('mr', 'ttl', 'is', function (err, res) {
 
 registry.on('ttl-refresh', function () {
   count += 1;
-  if (count === 2) {
+  if (count === 1) {
     registry.close();
   }
 });

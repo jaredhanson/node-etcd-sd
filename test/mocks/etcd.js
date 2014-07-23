@@ -6,7 +6,6 @@ function Etcd(options, port) {
 }
 
 Etcd.prototype.set = function set(key, val, options, cb) {
-  // body...
   cb = cb || options;
   var slices = [];
   key = key.split("/");
@@ -26,11 +25,11 @@ Etcd.prototype.set = function set(key, val, options, cb) {
 
 Etcd.prototype.get = function get(key, cb) {
   if (! key) {
-    return cb("NO KEY BB")
+    return cb('NO KEY BB');
   }
   key = key.split("/")
   if (! this._store[key[0]]) {
-    return cb("KEY NOT FOUND " + key);
+    return cb('KEY: ' + key + ' NOT FOUND');
   }
   var dir, value, nodes;
   if (this._store[key[0]].length === 1) {
