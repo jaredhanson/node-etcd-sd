@@ -13,7 +13,6 @@ describe('registry', function () {
   });
 
   it('should be able get domains', function (done) {
-    console.log(etcd);
     var registry = $require(registryPath, {'nodeprime-etcd': etcd});
     var reg = new registry({timeout: 1});
     reg.connect();
