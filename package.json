@@ -1,5 +1,5 @@
 {
-  "name": "node-sd-etcd",
+  "name": "sd-etcd",
   "version": "0.0.0",
   "description": "node-sd-etcd =================",
   "main": "index.js",
@@ -7,14 +7,14 @@
     "test": "test"
   },
   "dependencies": {
-    "chai": "^1.9.1",
     "lru-cache": "^2.5.0",
-    "node-etcd": "^2.1.1",
+    "node-etcd": "git://github.com/NodePrime/node-etceterad.git#develop",
     "node-uuid": "^1.4.1",
     "prefixed-require": "^1.0.0",
     "proxyquire": "^1.0.1"
   },
   "devDependencies": {
+    "chai": "^1.9.1",
     "mocha": "^1.20.1"
   },
   "scripts": {

@@ -19,9 +19,9 @@ describe('registry', function () {
     reg.announce('this', 'is', 'test2', function (err, res) {
       reg.domains(function (err2, res2) {
         // expect mr
+        done();
         reg.on('ttl-refresh', function () {
           reg.close();
-          done();
         })
       })
     });
