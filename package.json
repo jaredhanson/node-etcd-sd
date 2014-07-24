@@ -2,7 +2,7 @@
   "name": "sd-etcd",
   "version": "0.0.0",
   "description": "node-sd-etcd =================",
-  "main": "index.js",
+  "main": "./lib",
   "directories": {
     "test": "test"
   },
