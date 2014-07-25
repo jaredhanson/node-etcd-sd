@@ -1,43 +1,25 @@
 {
-  "name": "sd-zookeeper",
-  "version": "0.0.2",
-  "description": "Service discovery using Apache ZooKeeper.",
-  "keywords": [
-    "discovery",
-    "disco",
-    "zookeeper"
-  ],
-  "author": {
-    "name": "Jared Hanson",
-    "email": "jared@nodeprime.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/NodePrime/node-sd-zookeeper.git"
-  },
-  "bugs": {
-    "url": "http://github.com/NodePrime/node-sd-zookeeper/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://www.opensource.org/licenses/MIT"
-    }
-  ],
+  "name": "sd-etcd",
+  "version": "0.0.0",
+  "description": "node-sd-etcd =================",
   "main": "./lib",
+  "directories": {
+    "test": "test"
+  },
   "dependencies": {
-    "zookeeper": "git://github.com/jaredhanson/node-zookeeper.git#emit-error",
-    "lru-cache": "~2.5.0",
-    "node-uuid": "~1.4.1"
+    "lru-cache": "^2.5.0",
+    "node-etcd": "git://github.com/NodePrime/node-etceterad.git#develop",
+    "node-uuid": "^1.4.1",
+    "prefixed-require": "^1.0.0",
+    "proxyquire": "^1.0.1"
   },
   "devDependencies": {
-    "mocha": "1.x.x",
-    "chai": "1.x.x"
-  },
-  "engines": {
-    "node": "*"
+    "chai": "^1.9.1",
+    "mocha": "^1.20.1"
   },
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec --require test/bootstrap/node test/*.test.js"
-  }
+    "test": "make test"
+  },
+  "author": "David Lee Mather Jr.",
+  "license": "ISC"
 }
