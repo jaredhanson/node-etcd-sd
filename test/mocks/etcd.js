@@ -2,6 +2,7 @@ function Etcd(options, port) {
   // STUFF
   this.options = options || {};
   this.options.port = port || 4001;
+  this._wacky = options.wacky;
   this._store = {};
 }
 
@@ -25,9 +26,12 @@ Etcd.prototype.set = function set(key, val, options, cb) {
 
 Etcd.prototype.get = function get(key, cb) {
   if (! key) {
-    return cb('NO KEY BB');
+    return cb('NO KEY');
   }
-  key = key.split("/")
+  key = key.split("/");
+  if (this._wacky) {
+    return cb(null, this._wacky);
+  }
   if (! this._store[key[0]]) {
     return cb('KEY: ' + key + ' NOT FOUND');
   }
@@ -50,7 +54,22 @@ Etcd.prototype.get = function get(key, cb) {
   } else {
     ret = {node: {key: key, value: value}};
   }
+
   return cb(null, ret)
+}
+
+Etcd.prototype.delete = function del(key, cb) {
+  var slices = [];
+  key = key.split("/");
+  for (var i = 0, len = key.length; i < len; i++) {
+    var k = key[i];
+    var slice = key.slice(i + 1);
+    slices.push(slice);
+    if (this._store[k]) {
+      delete this._store[k];
+    }
+  };
+  return cb();
 }
 
 module.exports = Etcd;
