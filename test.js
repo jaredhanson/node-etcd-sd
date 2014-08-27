@@ -4,6 +4,7 @@ var registry = new reg();
 var count = 0;
 registry.connect();
 registry.announce('mr', 'ttl', 'is', function (err, res) {
+  logger.log(err, res);
   registry.resolve('mr', 'ttl', function (err, domains) {
     if(err) {
       logger.error(err);
