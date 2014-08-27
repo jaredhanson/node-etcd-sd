@@ -4,12 +4,12 @@ var registry = new reg();
 var count = 0;
 registry.connect();
 registry.announce('mr', 'ttl', 'is', function (err, res) {
-  logger.log(err, res);
-  registry.resolve('mr', 'ttl', function (err, domains) {
-    if(err) {
+  if (err) { logger.log (err); }
+  registry.resolve('mr', 'ttl', function (err, value) {
+    if (err) {
       logger.error(err);
     } else {
-      logger.log(domains);
+      logger.log(value);
     }
   });
 });

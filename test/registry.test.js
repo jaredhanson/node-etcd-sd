@@ -49,35 +49,7 @@ describe('registry', function () {
       });
     });
   });
-
-  it('should error if the directories are screwed', function (done) {
-    var registry = $require(registryPath, {'node-etcd': etcd});
-    var reg = new registry({timeout: 1});
-    reg._client._wacky = {nodes: {dir: "this just happened"}};
-    reg.connect();
-    reg.announce('this', 'is', 'test2', function (err, res) {
-      reg.resolve('this', 'is', function (err, res) {
-        expect(err).to.be.equal('DIRECTORY ERROR');
-        expect(res).to.be.equal(undefined);
-        done();
-      });
-    });
-  });
-
-  it('should error if the directories are screwed 2', function (done) {
-    var registry = $require(registryPath, {'node-etcd': etcd});
-    var reg = new registry({timeout: 1});
-    reg._client._wacky = {node: {nodes: [{node: {dir: "this just happened"}}]}};
-    reg.connect();
-    reg.announce('this', 'is', 'test2', function (err, res) {
-      reg.resolve('this', 'is', function (err, res) {
-        expect(err).to.be.equal('DIRECTORY ERROR');
-        expect(res).to.be.equal(undefined);
-        done();
-      });
-    });
-  });
-
+  
   it('should be able get domains', function (done) {
     var registry = $require(registryPath, {'node-etcd': etcd});
     var reg = new registry({timeout: 1});

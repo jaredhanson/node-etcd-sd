@@ -6,70 +6,35 @@ function Etcd(options, port) {
   this._store = {};
 }
 
-Etcd.prototype.set = function set(key, val, options, cb) {
-  cb = cb || options;
-  var slices = [];
-  key = key.split("/");
-  for (var i = 0, len = key.length; i < len; i++) {
-    var k = key[i];
-    var slice = key.slice(i + 1);
-    slice.push(val);
-    slices.push(slice);
-    if (! this._store[k]) {
-      this._store[k] = [];
-    }
-    this._store[k].push(slice);
-
-  };
-  return cb(null, slices);
+Etcd.prototype.setTTL = function(path, value, ms, cb) {
+  process.nextTick(function () {
+    return cb();
+  });
 };
 
-Etcd.prototype.get = function get(key, cb) {
-  if (! key) {
-    return cb('NO KEY');
-  }
-  key = key.split("/");
-  if (this._wacky) {
-    return cb(null, this._wacky);
-  }
-  if (! this._store[key[0]]) {
-    return cb('KEY: ' + key + ' NOT FOUND');
-  }
-  var dir, value, nodes;
-  if (this._store[key[0]].length === 1) {
-    var value = this._store[key[0]][0];
-    if (value.length === 1) {
-      dir = false
-    } else {
-      dir = true
-      nodes = this._store[key[0]];
-    }
-  } else {
-    dir = true;
-    nodes = this._store[key[0]];
-  }
-  var ret;
-  if (nodes) {
-    ret = {node: {key: key, dir: dir, nodes: nodes}};
-  } else {
-    ret = {node: {key: key, value: value}};
-  }
+Etcd.prototype.updateTTL = function(path, value, ms, cb) {
+  process.nextTick(function () {
+    return cb();
+  });
+};
 
-  return cb(null, ret)
-}
 
-Etcd.prototype.delete = function del(key, cb) {
-  var slices = [];
-  key = key.split("/");
-  for (var i = 0, len = key.length; i < len; i++) {
-    var k = key[i];
-    var slice = key.slice(i + 1);
-    slices.push(slice);
-    if (this._store[k]) {
-      delete this._store[k];
-    }
-  };
-  return cb();
-}
+Etcd.prototype.deletePath = function(path, cb) {
+  process.nextTick(function () {
+    return cb();
+  });
+};
+
+Etcd.prototype.getPath = function(path, cb) {
+  process.nextTick(function () {
+    return cb(null, ['hey', 'there']);
+  });
+};
+
+Etcd.prototype.getValue = function(path, cb) {
+  process.nextTick(function () {
+    return cb(null, 'I am value');
+  });
+};
 
 module.exports = Etcd;
