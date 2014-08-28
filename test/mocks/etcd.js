@@ -19,7 +19,7 @@ Etcd.prototype.updateTTL = function(path, value, ms, cb) {
 };
 
 
-Etcd.prototype.deletePath = function(path, cb) {
+Etcd.prototype.deleteValue = function(path, cb) {
   process.nextTick(function () {
     return cb();
   });
