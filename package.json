@@ -7,11 +7,12 @@
     "test": "test"
   },
   "dependencies": {
-    "node-etcd": "git://github.com/NodePrime/node-etceterad.git#develop",
-    "lru-cache": "^2.5.0",
-    "node-uuid": "^1.4.1",
+    "debug": "~1.0.4",
     "knuth-shuffle": "~1.0.0",
-    "debug": "~1.0.4"
+    "lru-cache": "^2.5.0",
+    "moment": "^2.8.2",
+    "node-etcd": "git://github.com/NodePrime/node-etceterad.git#develop",
+    "node-uuid": "^1.4.1"
   },
   "devDependencies": {
     "chai": "^1.9.1",
