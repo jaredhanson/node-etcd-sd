@@ -41,18 +41,18 @@ describe('registry', function () {
 
   it('should able to announce on a route and update', function (done) {
     var registry = $require(registryPath, {'node-etcd': etcd});
-    var reg = new registry({timeout: 1});
+    var reg = new registry({ttl: 1});
     reg.connect();
     reg.announce('this', 'is', 'test1', function (err, res) {
-      reg.on('ttl-refresh', function () {
+      reg.on('renew', function () {
         done();
       });
     });
   });
-  
+
   it('should be able get domains', function (done) {
     var registry = $require(registryPath, {'node-etcd': etcd});
-    var reg = new registry({timeout: 1});
+    var reg = new registry({ttl: 1});
     reg.connect();
     reg.announce('this', 'is', 'test2', function (err, res) {
       reg.domains(function (err2, res2) {
