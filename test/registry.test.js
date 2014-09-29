@@ -1,295 +1,486 @@
 var path = require('path')
-  , registryPath = path.resolve(__dirname, '../lib/registry');
+  , registryPath = path.resolve(__dirname, '../lib/registry')
+  , Registry = require('../lib/registry');
 
-describe('Registry', function () {
+describe('registry', function () {
+  it('should export a constructor', function () {
+    expect(Registry).to.be.a('function');
+  });
 
-  describe('#connect', function () {
+  describe('#registry.connect', function () {
+    var testRegistry = new Registry();
+    it('should be a method', function () {
+      expect(testRegistry.connect).to.be.a('function');
+    });
 
-    describe('connect with cb', function () {
-      var etcd = function () {};
-      var Registry = $require(registryPath, {'node-etcd': etcd});
+    describe('connecting with callback', function () {
       var registry = new Registry();
       before(function(done) {
         registry.connect(function () {
           done();
         });
       });
-      it('should have connected', function () {
-        expect(registry._isConnected).to.be.true;
-      });
-    });
-
-    describe('connect without cb', function () {
-      var etcd = function () {};
-      var Registry = $require(registryPath, {'node-etcd': etcd});
-      var registry = new Registry();
-      before(function(done) {
-        registry.on('ready', function () {
-          done();
-        });
-        registry.connect();
-      });
-      it('should have connected', function () {
+      it('should be connect', function () {
         expect(registry._isConnected).to.be.true;
       });
     });
   });
 
-  describe('#close', function () {
+  describe('#registry.close', function () {
+    var testRegistry = new Registry();
+    it('should be a method', function () {
+      expect(testRegistry.close).to.be.a('function');
+    });
+
     describe('closing', function () {
-      var etcd = function () {};
-      var Registry = $require(registryPath, {'node-etcd': etcd});
       var registry = new Registry();
       before(function(done) {
         registry.on('close', function () {
-          done();
+          return done();
         });
         registry.close();
       });
-      it('should have disconnected', function () {
+      it('should be connect', function () {
         expect(registry._isConnected).to.be.false;
       });
     });
   });
-  describe('#announce', function () {
 
-    describe('correctly announcing val', function () {
-      var etcd = function () {};
-      var updated = true;
-      etcd.prototype.updateTTL = function(path, data, ttl, cb) {
-        process.nextTick(function () {
-          updated = true;
-          expect(path.split('/')[1]).to.be.equal('srv');
-          expect(path.split('/')[2]).to.be.equal('domain');
-          expect(path.split('/')[3]).to.be.equal('type');
-          expect(data).to.be.equal('data');
-          expect(ttl).to.be.equal(0.001);
-          return cb();
-        });
-      };
-      etcd.prototype.setTTL = function(path, data, ttl, cb) {
-        process.nextTick(function () {
-          expect(path.split('/')[1]).to.be.equal('srv');
-          expect(path.split('/')[2]).to.be.equal('domain');
-          expect(path.split('/')[3]).to.be.equal('type');
-          expect(data).to.be.equal('data');
-          expect(ttl).to.be.equal(0.001);
-          return cb();
-        });
-      };
-      var Registry = $require(registryPath, {'node-etcd': etcd});
-      var registry = new Registry({ttl: 0.001});
-      before(function(done) {
-        registry.once('renew', function () {
-          done();
-        });
-
-        registry.connect();
-        registry.announce('domain', 'type', 'data', function (err) {
-          if (err) { return cb(err); }
-        });
-      });
-      it('should have announced', function () {
-        expect(updated).to.be.true;
-      });
+  describe('#registry.announce', function () {
+    var testRegistry = new Registry();
+    it('should be a method', function () {
+      expect(testRegistry.announce).to.be.a('function');
     });
 
-    describe('error setting ttl', function () {
+    describe('announcing', function () {
       var etcd = function () {};
-      var updated = true;
-      etcd.prototype.updateTTL = function(path, data, ttl, cb) {
+      etcd.prototype.setTTL = function (path, data, ttl, cb) {
         process.nextTick(function () {
-          updated = true;
-          expect(path.split('/')[1]).to.be.equal('srv');
-          expect(path.split('/')[2]).to.be.equal('domain');
-          expect(path.split('/')[3]).to.be.equal('type');
-          expect(data).to.be.equal('data');
-          expect(ttl).to.be.equal(0.001);
           return cb();
         });
       };
-      etcd.prototype.setTTL = function(path, data, ttl, cb) {
-        process.nextTick(function () {
-          expect(path.split('/')[1]).to.be.equal('srv');
-          expect(path.split('/')[2]).to.be.equal('domain');
-          expect(path.split('/')[3]).to.be.equal('type');
-          expect(data).to.be.equal('data');
-          expect(ttl).to.be.equal(0.001);
-          return cb(new Error('Failure to cooperate'));
-        });
+
+      etcd.prototype.updateTTL = function (path, data, ttl, cb) {
+        return cb();
       };
-      var Registry = $require(registryPath, {'node-etcd': etcd});
-      var registry = new Registry({ttl: 0.001});
-      var error;
+
+      var dom, typ;
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 1});
       before(function(done) {
-        registry.connect();
-        registry.announce('domain', 'type', 'data', function (err) {
-          if (err) {
-            error = err;
+        registry.connect(function () {
+          registry.announce('domain', 'type', 'value', function (err) {
+            if (err) { return done(err); }
+          });
+
+          registry.once('renew', function (domain, type) {
+            dom = domain;
+            typ = type;
             return done();
-          }
+          });
         });
       });
-      it('should have announced', function () {
-        expect(error.message).to.be.equal('Failure to cooperate');
+
+      it('should renew the announced domain and type', function () {
+        expect(dom).to.be.equal('domain');
+        expect(typ).to.be.equal('type');
       });
     });
 
-    describe('error updating ttl', function () {
+    describe('error with updateTTL', function () {
       var etcd = function () {};
-      var updated = true;
-      etcd.prototype.updateTTL = function(path, data, ttl, cb) {
+
+      etcd.prototype.setTTL = function (path, data, ttl, cb) {
         process.nextTick(function () {
-          updated = true;
-          expect(path.split('/')[1]).to.be.equal('srv');
-          expect(path.split('/')[2]).to.be.equal('domain');
-          expect(path.split('/')[3]).to.be.equal('type');
-          expect(data).to.be.equal('data');
-          expect(ttl).to.be.equal(0.001);
-          return cb(new Error('Failure to cooperate'));
-        });
-      };
-      etcd.prototype.setTTL = function(path, data, ttl, cb) {
-        process.nextTick(function () {
-          expect(path.split('/')[1]).to.be.equal('srv');
-          expect(path.split('/')[2]).to.be.equal('domain');
-          expect(path.split('/')[3]).to.be.equal('type');
-          expect(data).to.be.equal('data');
-          expect(ttl).to.be.equal(0.001);
           return cb();
         });
       };
-      var Registry = $require(registryPath, {'node-etcd': etcd});
-      var registry = new Registry({ttl: 0.001});
-      var error;
 
+      etcd.prototype.updateTTL = function (path, data, ttl, cb) {
+        process.nextTick(function () {
+          return cb(new Error('It just did not work, is all'));
+        });
+      };
+
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 1});
+      var error;
+      var called = 0;
       before(function(done) {
-        registry.connect();
+        registry.connect(function () {
+          registry.announce('domain', 'type', 'value', function (err) {
+            if (err) { console.log(err); }
+          });
+        });
         registry.once('error', function (err) {
           error = err;
-          done();
+          return done();
         });
-        registry.announce('domain', 'type', 'data', function (err) {
-          if (err) {
-            return done(err);
+      });
+      it('should produce an error', function () {
+        expect(error).to.not.be.undefined;
+        expect(error.message).to.be.equal('Failed to update TTL for type@domain')
+      });
+    });
+
+  });
+
+  describe('#registry.unannounce', function () {
+    var testRegistry = new Registry();
+    it('should be a method', function () {
+      expect(testRegistry.unannounce).to.be.a('function');
+    });
+    describe('unannouncing', function () {
+      var etcd = function () {};
+      etcd.prototype.setTTL = function (path, data, ttl, cb) {
+        process.nextTick(function () {
+          return cb();
+        });
+      };
+
+      etcd.prototype.updateTTL = function (path, data, ttl, cb) {
+        return cb();
+      };
+
+      etcd.prototype.deleteValue = function (path, cb) {
+        return cb();
+      };
+
+      var dom, typ;
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      before(function(done) {
+        registry.connect(function () {
+          var uid = registry.announce('domain', 'type', 'value', function (err) {
+            if (err) { return done(err); }
+          });
+
+          registry.on('renew', function (domain, type) {
+            dom = domain;
+            typ = type;
+            registry.unannounce('domain', 'type', uid, function (err) {
+              return done();
+            });
+          });
+        });
+      });
+      it('should announce', function () {
+        expect(dom).to.be.equal('domain');
+        expect(typ).to.be.equal('type');
+      });
+    });
+  });
+
+  describe('#registry.domains', function () {
+    var testRegistry = new Registry();
+    it('should be a method', function () {
+      expect(testRegistry.domains).to.be.a('function');
+    });
+
+    describe('checking domains', function () {
+      var etcd = function () {};
+      etcd.prototype.getPath = function (path, cb) {
+        expect(path).to.be.equal('/srv');
+        return cb(null, [{key: "wow"}], ['values']);
+      };
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      var result;
+      before(function(done) {
+        registry.connect(function () {
+          registry.domains(function (err, resp) {
+            if (err) { return done(err); }
+            result = resp;
+            return  done();
+          })
+        });
+      });
+      it('should announce', function () {
+        expect(result[0]).to.be.equal('wow');
+      });
+    });
+
+    describe('error checking domains', function () {
+      var etcd = function () {};
+      etcd.prototype.getPath = function (path, cb) {
+        expect(path).to.be.equal('/srv');
+        var thisError = new Error('Ah jeez');
+        thisError.code = 100;
+        return cb(thisError);
+      };
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      var error;
+      before(function(done) {
+        registry.connect(function () {
+          registry.domains(function (err, resp) {
+            if (err) {
+              error = err;
+              return done();
+            }
+          });
+        });
+      });
+      it('should produce an error', function () {
+        expect(error.message).to.be.equal('Ah jeez');
+      });
+    });
+  });
+
+  describe('#registry.resolve', function () {
+    var testRegistry = new Registry();
+    it('should be a method', function () {
+      expect(testRegistry.resolve).to.be.a('function');
+    });
+    describe('resolving', function () {
+      var etcd = function () {};
+      etcd.prototype.setTTL = function (path, data, ttl, cb) {
+        process.nextTick(function () {
+          return cb();
+        });
+      };
+
+      etcd.prototype.updateTTL = function (path, data, ttl, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+
+      etcd.prototype.deleteValue = function (path, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+      etcd.prototype.watch = function(path, options) {
+        expect(path).to.be.equal('/srv/strange/values');
+        return;
+      };
+      etcd.prototype.getPath = function (path, cb) {
+        expect(path).to.be.equal('/srv/strange/values');
+        return cb(null, ['test']);
+      };
+      etcd.prototype.getValue = function (path, cb) {
+        expect(path).to.be.equal('test');
+        return cb(null, 'value');
+      };
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      var result;
+      before(function(done) {
+        registry.connect(function () {
+          registry.resolve('strange', 'values', function (err, resp) {
+            if (err) { return done(err); }
+            result = resp;
+            return  done();
+          })
+        });
+      });
+      it('should return the resolved value', function () {
+        expect(result[0]).to.be.equal('value');
+      });
+    });
+    describe('resolving with values shortcut', function () {
+      var etcd = function () {};
+      etcd.prototype.setTTL = function (path, data, ttl, cb) {
+        process.nextTick(function () {
+          return cb();
+        });
+      };
+
+      etcd.prototype.updateTTL = function (path, data, ttl, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+
+      etcd.prototype.deleteValue = function (path, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+      etcd.prototype.watch = function(path, options, cb) {
+        expect(path).to.be.equal('/srv/strange/values');
+        return cb();
+      };
+      etcd.prototype.getPath = function (path, cb) {
+        expect(path).to.be.equal('/srv/strange/values');
+        return cb(null, ['values'], {'values':'value'});
+      };
+      etcd.prototype.getValue = function (path, cb) {
+        expect(path).to.be.equal('test');
+        return cb(null, 'value');
+      };
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      var result;
+      before(function(done) {
+        registry.connect(function () {
+          registry.resolve('strange', 'values', function (err, resp) {
+            if (err) { return done(err); }
+            result = resp;
+            return  done();
+          })
+        });
+      });
+      it('should return the resolved value', function () {
+        expect(result[0]).to.be.equal('value');
+      });
+    });
+
+    describe('resolve with caching', function () {
+      var etcd = function () {};
+      etcd.prototype.setTTL = function (path, data, ttl, cb) {
+        process.nextTick(function () {
+          return cb();
+        });
+      };
+
+      etcd.prototype.updateTTL = function (path, data, ttl, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+
+      etcd.prototype.deleteValue = function (path, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+      var call_count = 0;
+      etcd.prototype.watch = function(path, options, cb) {
+        expect(path).to.be.equal('/srv/strange/values');
+        call_count++;
+        if (call_count <= 4) {
+          process.nextTick(function () {
+            cb(null, 'set', 'this/is/the/key', 'val', {mindex: 10});
+            process.nextTick(function () {
+              cb(null, 'delete', 'this/is/the/key', 'val', {mindex: 10});
+              process.nextTick(function () {
+                cb(null, 'expire', 'this/is/the/key', 'val', {mindex: 10});
+            });
+            });
+          });
+        } else {
+          process.nextTick(function () {
+            cb(new Error('Stop all the downloading'));
+          });
+        }
+      };
+      etcd.prototype.getPath = function (path, cb) {
+        expect(path).to.be.equal('/srv/strange/values');
+        return cb(null, ['values'], {'values':'value'});
+      };
+      etcd.prototype.getValue = function (path, cb) {
+        expect(path).to.be.equal('test');
+        return cb(null, 'value');
+      };
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      var result;
+      var count = 0;
+      var dom, typ, rcrds;
+      before(function(done) {
+        registry.connect(function () {
+          registry.resolve('strange', 'values', function (err, resp) {
+            if (err) { return done(err); }
+            registry.resolve('strange', 'values', function (err, resp) {
+              if (err) { return done(err); }
+              result = resp;
+            });
+          });
+        });
+        registry.on('services', function (domain, type, records) {
+          count++;
+          if (count === 4) {
+            dom = domain;
+            typ = type;
+            rcrds = records;
+            done();
           }
         });
       });
-      it('should have announced', function () {
-        expect(error.message).to.be.equal('Failed to update TTL for type@domain');
-      });
+      it('should return the cached value', function () {
+        expect(result.length).to.be.equal(2);
+        expect(result[0] === 'val' || result[1] === 'val');
+        expect(dom).to.be.equal('is');
+        expect(typ).to.be.equal('the');
+      })
     });
-  });
-  describe('#unannounce', function () {
-    describe('sucessful unannounce', function () {
+    
+    describe('resolve value error', function () {
       var etcd = function () {};
-      var deleted;
-      etcd.prototype.deleteValue = function (path, cb) {
-        deleted = true;
-        expect(path).to.be.equal('/srv/domain/type/uid');
-        process.nextTick(function() {
-          return cb();
-        })
-      };
-      var Registry = $require(registryPath, {'node-etcd': etcd});
-      var registry = new Registry();
-      before(function (done) {
-        registry.unannounce('domain', 'type', 'uid', function () {
-          done();
-        });
-      });
-      it('should deleteValue', function () {
-        expect(deleted).to.be.equal(true);
-      });
-    });
-  });
-
-  describe('#domains', function () {
-    describe('sucessful domain fetch', function () {
-      var etcd = function () {};
-      var called;
-      etcd.prototype.getPath = function (path, cb) {
-        called = true;
-        expect(path).to.be.equal('/srv');
-        process.nextTick(function() {
-          return cb(null, [{key: 'wow'}, {key: 'neat'}]);
-        })
-      };
-      var Registry = $require(registryPath, {'node-etcd': etcd});
-      var registry = new Registry();
-      var values;
-      before(function (done) {
-        registry.connect();
-        registry.domains(function (err, ret) {
-          values = ret;
-          done();
-        });
-      });
-      it('should get the domains', function () {
-        expect(called).to.be.equal(true);
-        expect(values[0]).to.be.equal('neat');
-        expect(values[1]).to.be.equal('wow');
-      });
-    });
-  });
-
-  describe('#resolve', function () {
-    describe('sucessful set resolve', function () {
-      var etcd = function () {};
-      etcd.prototype.watch = function (path, options, cb) {
-        expect(path).to.be.equal('/srv/domain/type');
-        expect(options.recursive).to.be.true;
+      etcd.prototype.setTTL = function (path, data, ttl, cb) {
         process.nextTick(function () {
-          return cb(null, 'set', 'wow/neat/test', '{"key": "value"}', {mindex: 2});
+          return cb();
         });
       };
+
+      etcd.prototype.updateTTL = function (path, data, ttl, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+
+      etcd.prototype.deleteValue = function (path, cb) {
+        expect(path).to.be.equal('wow');
+        return cb();
+      };
+      etcd.prototype.watch = function(path, options) {
+        expect(path).to.be.equal('/srv/strange/values');
+        return;
+      };
       etcd.prototype.getPath = function (path, cb) {
-        expect(path).to.be.equal('/srv/domain/type');
-        process.nextTick(function() {
-          return cb(null, ['/srv/wow/cool']);
-        });
+        expect(path).to.be.equal('/srv/strange/values');
+        return cb(null, ['test']);
       };
       etcd.prototype.getValue = function (path, cb) {
-        expect(path).to.be.equal('/srv/wow/cool');
-        process.nextTick(function() {
-          return cb(null, 'final result!');
-        });
-      }
-      var Registry = $require(registryPath, {'node-etcd': etcd});
-      var registry = new Registry();
-      var values;
-      before(function (done) {
-        registry.connect();
-        registry.resolve('domain', 'type', function (err, ret) {
-          values = ret;
-          done();
+        expect(path).to.be.equal('test');
+        return cb(new Error('Oh man'));
+      };
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      var error;
+      before(function(done) {
+        registry.connect(function () {
+          registry.resolve('strange', 'values', function (err, resp) {
+            if (err) { 
+              error = err;
+              return done(); 
+            }
+          })
         });
       });
-      it('should have some values', function () {
-        expect(values[0]).to.be.equal('final result!');
+      it('should return an error', function () {
+        expect(error).to.not.be.undefined;
+        expect(error.message).to.be.equal('Oh man');
       });
     });
   });
-  describe('#services', function () {
-    var etcd = function () {};
-    etcd.prototype.getPath = function (path, cb) {
-      expect(path).to.be.equal('/srv/domain');
-      process.nextTick(function() {
-        return cb(null, [{key: 'wow'}]);
+
+  describe('#registry.services', function () {
+    var testRegistry = new Registry();
+    it('should be a method', function () {
+      expect(testRegistry.services).to.be.a('function');
+    });
+
+    describe('checking services', function () {
+      var etcd = function () {};
+      etcd.prototype.getPath = function (path, cb) {
+        expect(path).to.be.equal('/srv/strange');
+        return cb(null, [{key: "wow"}], ['values']);
+      };
+      var registryOverride = $require(registryPath, {'node-etcd': etcd});
+      var registry = new registryOverride({ttl: 0.1});
+      var result;
+      before(function(done) {
+        registry.connect(function () {
+          registry.services('strange', function (err, resp) {
+            if (err) { return done(err); }
+            result = resp;
+            return  done();
+          })
+        });
       });
-    };
-    var Registry = $require(registryPath, {'node-etcd': etcd});
-    var registry = new Registry();
-    var values;
-    before(function (done) {
-      registry.connect();
-      registry.services('domain', function (err, ret) {
-        values = ret;
-        done();
+      it('should announce', function () {
+        expect(result[0]).to.be.equal('wow');
       });
     });
-    it('should have some values', function () {
-      expect(values[0]).to.be.equal('wow');
+
+    describe('error checking services', function () {
+
     });
   });
-}) 
+});
