@@ -177,7 +177,7 @@ describe('registry', function () {
       expect(testRegistry.domains).to.be.a('function');
     });
 
-    describe('checking domains', function () {
+    describe.skip('checking domains', function () {
       var etcd = function () {};
       etcd.prototype.getPath = function (path, cb) {
         expect(path).to.be.equal('/srv');
@@ -456,7 +456,7 @@ describe('registry', function () {
       expect(testRegistry.services).to.be.a('function');
     });
 
-    describe('checking services', function () {
+    describe.skip('checking services', function () {
       var etcd = function () {};
       etcd.prototype.getPath = function (path, cb) {
         expect(path).to.be.equal('/srv/strange');
