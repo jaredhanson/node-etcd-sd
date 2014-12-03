@@ -13,6 +13,12 @@ Etcd.prototype.setTTL = function(path, value, ms, cb) {
   });
 };
 
+Etcd.prototype.setPath = function(path, cb) {
+  process.nextTick(function () {
+    return cb();
+  });
+};
+
 Etcd.prototype.updateTTL = function(path, value, ms, cb) {
   process.nextTick(function () {
     return cb();
