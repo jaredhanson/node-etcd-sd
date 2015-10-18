@@ -11,7 +11,7 @@
     "knuth-shuffle": "~1.0.0",
     "lru-cache": "^2.5.0",
     "moment": "^2.8.2",
-    "node-etcd": "git://github.com/NodePrime/node-etceterad.git#develop",
+    "etceterad": "0.0.0",
     "node-uuid": "^1.4.1"
   },
   "devDependencies": {
