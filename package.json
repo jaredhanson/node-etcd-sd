@@ -1,17 +1,24 @@
 {
   "name": "sd-etcd",
   "version": "0.0.0",
-  "description": "node-sd-etcd =================",
+  "description": "Service discovery using etcd.",
   "main": "./lib",
   "directories": {
     "test": "test"
   },
+  "contributors": [
+    {
+      "name": "Jared Hanson",
+      "email": "jaredhanson@gmail.com",
+      "url": "http://www.jaredhanson.net/"
+    }
+  ],
   "dependencies": {
     "debug": "~1.0.4",
     "knuth-shuffle": "~1.0.0",
     "lru-cache": "^2.5.0",
     "moment": "^2.8.2",
-    "etceterad": "0.0.0",
+    "etceterad": "git://github.com/jaredhanson/node-etceterad.git#master",
     "node-uuid": "^1.4.1"
   },
   "devDependencies": {
@@ -23,5 +30,5 @@
     "test": "make test"
   },
   "author": "David Lee Mather Jr.",
-  "license": "ISC"
+  "license": "MIT"
 }
