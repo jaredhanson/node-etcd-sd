@@ -1,6 +1,6 @@
 {
   "name": "etcd-sd",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Service discovery using etcd.",
   "main": "./lib",
   "directories": {
