@@ -7,25 +7,6 @@ describe('registry', function () {
     expect(Registry).to.be.a('function');
   });
 
-  describe('#registry.connect', function () {
-    var testRegistry = new Registry();
-    it('should be a method', function () {
-      expect(testRegistry.connect).to.be.a('function');
-    });
-
-    describe('connecting with callback', function () {
-      var registry = new Registry();
-      before(function(done) {
-        registry.connect(function () {
-          done();
-        });
-      });
-      it('should be connect', function () {
-        expect(registry._isConnected).to.be.true;
-      });
-    });
-  });
-
   describe('#registry.close', function () {
     var testRegistry = new Registry();
     it('should be a method', function () {
@@ -68,16 +49,14 @@ describe('registry', function () {
       var registryOverride = $require(registryPath, {'node-etcd': etcd});
       var registry = new registryOverride({ttl: 1});
       before(function(done) {
-        registry.connect(function () {
-          registry.announce('domain', 'type', 'value', function (err) {
-            if (err) { return done(err); }
-          });
+        registry.announce('domain', 'type', 'value', function (err) {
+          if (err) { return done(err); }
+        });
 
-          registry.once('renew', function (domain, type) {
-            dom = domain;
-            typ = type;
-            return done();
-          });
+        registry.once('renew', function (domain, type) {
+          dom = domain;
+          typ = type;
+          return done();
         });
       });
 
@@ -107,10 +86,8 @@ describe('registry', function () {
       var error;
       var called = 0;
       before(function(done) {
-        registry.connect(function () {
-          registry.announce('domain', 'type', 'value', function (err) {
-            if (err) { console.log(err); }
-          });
+        registry.announce('domain', 'type', 'value', function (err) {
+          if (err) { console.log(err); }
         });
         registry.once('error', function (err) {
           error = err;
@@ -150,17 +127,15 @@ describe('registry', function () {
       var registryOverride = $require(registryPath, {'node-etcd': etcd});
       var registry = new registryOverride({ttl: 0.1});
       before(function(done) {
-        registry.connect(function () {
-          var uid = registry.announce('domain', 'type', 'value', function (err) {
-            if (err) { return done(err); }
-          });
+        var uid = registry.announce('domain', 'type', 'value', function (err) {
+          if (err) { return done(err); }
+        });
 
-          registry.on('renew', function (domain, type) {
-            dom = domain;
-            typ = type;
-            registry.unannounce('domain', 'type', uid, function (err) {
-              return done();
-            });
+        registry.on('renew', function (domain, type) {
+          dom = domain;
+          typ = type;
+          registry.unannounce('domain', 'type', uid, function (err) {
+            return done();
           });
         });
       });
@@ -187,13 +162,11 @@ describe('registry', function () {
       var registry = new registryOverride({ttl: 0.1});
       var result;
       before(function(done) {
-        registry.connect(function () {
           registry.domains(function (err, resp) {
             if (err) { return done(err); }
             result = resp;
             return  done();
           })
-        });
       });
       it('should announce', function () {
         expect(result[0]).to.be.equal('wow');
@@ -212,14 +185,12 @@ describe('registry', function () {
       var registry = new registryOverride({ttl: 0.1});
       var error;
       before(function(done) {
-        registry.connect(function () {
           registry.domains(function (err, resp) {
             if (err) {
               error = err;
               return done();
             }
           });
-        });
       });
       it('should produce an error', function () {
         expect(error.message).to.be.equal('Ah jeez');
@@ -277,13 +248,11 @@ describe('registry', function () {
       var registry = new registryOverride({ttl: 0.1});
       var result;
       before(function(done) {
-        registry.connect(function () {
           registry.resolve('strange', 'values', function (err, resp) {
             if (err) { return done(err); }
             result = resp;
             return  done();
           })
-        });
       });
       it('should return the resolved value', function () {
         expect(result[0]).to.be.equal('value');
@@ -328,13 +297,11 @@ describe('registry', function () {
       var registry = new registryOverride({ttl: 0.1});
       var result;
       before(function(done) {
-        registry.connect(function () {
           registry.resolve('strange', 'values', function (err, resp) {
             if (err) { return done(err); }
             result = resp;
             return  done();
           })
-        });
       });
       it('should return the resolved value', function () {
         expect(result[0]).to.be.equal('value');
@@ -398,14 +365,12 @@ describe('registry', function () {
       var count = 0;
       var dom, typ, rcrds;
       before(function(done) {
-        registry.connect(function () {
           registry.resolve('strange', 'values', function (err, resp) {
             if (err) { return done(err); }
             registry.resolve('strange', 'values', function (err, resp) {
               if (err) { return done(err); }
               result = resp;
             });
-          });
         });
         registry.on('services', function (domain, type, records) {
           count++;
@@ -458,13 +423,11 @@ describe('registry', function () {
       var registry = new registryOverride({ttl: 0.1});
       var error;
       before(function(done) {
-        registry.connect(function () {
           registry.resolve('strange', 'values', function (err, resp) {
             if (err) { 
               error = err;
               return done(); 
             }
-          })
         });
       });
       it('should return an error', function () {
@@ -490,13 +453,11 @@ describe('registry', function () {
       var registry = new registryOverride({ttl: 0.1});
       var result;
       before(function(done) {
-        registry.connect(function () {
           registry.services('strange', function (err, resp) {
             if (err) { return done(err); }
             result = resp;
             return  done();
           })
-        });
       });
       it('should announce', function () {
         expect(result[0]).to.be.equal('wow');
